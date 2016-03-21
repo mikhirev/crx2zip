@@ -1,0 +1,27 @@
+#!/bin/sh -e
+
+die() {
+    echo "error: $*" >&2
+    exit 1
+}
+
+[ $# -eq 1 ] || die "usage: $0 <file>"
+[ -f "$1" ] || die "\`$1' does not exist or is not a regular file"
+
+MAGIC=$(dd if="$1" bs=4 count=1 2>/dev/null)
+[ "$MAGIC" = Cr24 ] || die "\`$1' is not a chrome extension"
+
+VERSION=$(od -An -j4 -N4 -tu "$1" | tr -d ' \t')
+[ $VERSION -eq 2 ] || die "don't know how to deal with extensions version $VERSION"
+
+KEY_LEN=$(od -An -j8 -N4 -tu "$1" | tr -d ' \t')
+SIG_LEN=$(od -An -j12 -N4 -tu "$1" | tr -d ' \t')
+OFFSET=$((16 + KEY_LEN + SIG_LEN))
+
+ZIPMAGIC=$(od -An -j$OFFSET -N4 -tx "$1" | tr -d ' \t')
+[ $ZIPMAGIC = 04034b50 ] || die 'payload is not a ZIP archive'
+
+ZIPNAME=$(basename -s .crx "$1").zip
+
+dd if="$1" of="$ZIPNAME" ibs=1 skip=$OFFSET 2>/dev/null
+echo "written \`$ZIPNAME'"
