@@ -18,11 +18,20 @@ MAGIC=$(dd if="$1" bs=4 count=1 2>/dev/null)
 [ "$MAGIC" = Cr24 ] || die "\`$1' is not a chrome extension"
 
 VERSION=$(od -An -j4 -N4 -tu "$1" | tr -d ' \t')
-[ $VERSION -eq 2 ] || die "don't know how to deal with extensions version $VERSION"
-
-KEY_LEN=$(od -An -j8 -N4 -tu "$1" | tr -d ' \t')
-SIG_LEN=$(od -An -j12 -N4 -tu "$1" | tr -d ' \t')
-OFFSET=$((16 + KEY_LEN + SIG_LEN))
+case $VERSION in
+    2)
+        KEY_LEN=$(od -An -j8 -N4 -tu "$1" | tr -d ' \t')
+        SIG_LEN=$(od -An -j12 -N4 -tu "$1" | tr -d ' \t')
+        OFFSET=$((16 + KEY_LEN + SIG_LEN))
+        ;;
+    3)
+        HEADER_LEN=$(od -An -j8 -N4 -tu "$1" | tr -d ' \t')
+        OFFSET=$((12 + HEADER_LEN))
+        ;;
+    *)
+        die "don't know how to deal with extensions version $VERSION"
+        ;;
+esac
 
 ZIPMAGIC=$(od -An -j$OFFSET -N4 -tx "$1" | tr -d ' \t')
 [ $ZIPMAGIC = 04034b50 ] || die 'payload is not a ZIP archive'

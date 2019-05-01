@@ -15,6 +15,6 @@ It should work on any POSIX-compatible system.
 See also
 ========
 
-- [CRX Package Format][crx]
+- [CRX v.2 Package Format][crx2]
 
-[crx]: https://web.archive.org/web/20180114090616/https://developer.chrome.com/extensions/crx
+[crx2]: https://web.archive.org/web/20180114090616/https://developer.chrome.com/extensions/crx
