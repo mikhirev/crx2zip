@@ -17,4 +17,4 @@ See also
 
 - [CRX Package Format][crx]
 
-[crx]: https://developer.chrome.com/extensions/crx
+[crx]: https://web.archive.org/web/20180114090616/https://developer.chrome.com/extensions/crx
